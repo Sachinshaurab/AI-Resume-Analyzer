@@ -58,7 +58,7 @@ const [jobMatch, setJobMatch] = useState<{
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/analyze",
+        "https://ai-resume-analyzer-eapw.onrender.com/analyze",
         {
           method: "POST",
           body: formData,
@@ -103,7 +103,7 @@ const [jobMatch, setJobMatch] = useState<{
     setError("");
 
     const response = await fetch(
-      "http://127.0.0.1:8000/match-job",
+      "https://ai-resume-analyzer-eapw.onrender.com/match-job",
       {
         method: "POST",
         body: formData,
