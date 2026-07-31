@@ -3,9 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
 from io import BytesIO
 import re
+import os
 from google import genai
 app = FastAPI()
-gemini_client=genai.Client()
+gemini_client=genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
 
 app.add_middleware(
     CORSMiddleware,
