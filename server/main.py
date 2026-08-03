@@ -4,10 +4,10 @@ from pypdf import PdfReader
 from io import BytesIO
 import re
 import os
-from google import genai
+from groq import Groq
 app = FastAPI()
-gemini_client=genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
+gemini_client=Groq(
+    api_key=os.getenv("GROQ_API_KEY")
 )
 
 app.add_middleware(
@@ -49,12 +49,17 @@ Do not give generic advice.
 Base the analysis only on the resume and job description.
 """
 
-    response = gemini_client.models.generate_content(
-        model="gemini-2.5-pro",
-        contents=prompt
+    response = gemini_client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
     )
 
-    return response.text
+    return response.choices[0].message.content
 
 def analyze_resume_text(text: str):
     text_lower = text.lower()
