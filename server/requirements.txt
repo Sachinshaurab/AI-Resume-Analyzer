@@ -4,3 +4,4 @@ pypdf
 google-genai
 python-multipart
 groq
+python-dotrnv
