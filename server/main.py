@@ -5,11 +5,12 @@ from io import BytesIO
 import re
 import os
 from groq import Groq
+from dotenv import load_dotenv
+load_dotenv()
 app = FastAPI()
 gemini_client=Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "https://ai-resume-analyzer-xi-indol.vercel.app"],
@@ -17,36 +18,68 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
 @app.get("/")
 def home():
     return {"message": "ResumeAI Backend is running"}
 def analyze_resume_with_gemini(resume_text: str, job_description: str):
     prompt = f"""
-You are an expert ATS resume analyzer and technical recruiter.
+You are an expert ATS Resume Analyzer, Career Coach, and Recruiter.
 
-Analyze the candidate's resume against the given job description.
+Your job is to analyze resumes for ANY profession including:
+Software Engineering, Data Science, AI, Cybersecurity,
+Mechanical Engineering, Civil Engineering, Electrical Engineering,
+Marketing, Sales, Finance, HR, Teacher, Doctor, Nurse,
+Lawyer, Graphic Designer, UI/UX Designer, Product Manager,
+Business Analyst, Accountant and every other profession.
+
+Analyze the resume professionally.
 
 RESUME:
 {resume_text}
 
 JOB DESCRIPTION:
-{job_description}
+{job_description if job_description else "Not Provided"}
 
-Provide a detailed analysis with:
+Provide your response in Markdown with the following sections:
 
-1. Overall job match score out of 100.
-2. Candidate strengths.
-3. Matched technical skills.
-4. Missing technical skills.
-5. Resume weaknesses.
-6. Specific project recommendations.
-7. Specific resume improvement suggestions.
-8. Final hiring recommendation.
+# Overall ATS Score (/100)
 
-Do not give generic advice.
-Base the analysis only on the resume and job description.
+# Resume Summary
+
+# Detected Profession
+
+# Key Strengths
+
+# Missing Skills
+
+# Missing Keywords
+
+# Resume Formatting Review
+
+# Grammar & Language Review
+
+# Experience Review
+
+# Projects Review
+
+# Education Review
+
+# Certifications Review
+
+# ATS Optimization Suggestions
+
+# Career Growth Suggestions
+
+# Interview Readiness
+
+# Final Verdict
+
+Rules:
+- If no job description is provided, analyze the resume generally.
+- If a job description is provided, compare the resume with it.
+- Give profession-specific suggestions.
+- Never give generic advice.
+- Keep the response clear and professional.
 """
 
     response = gemini_client.chat.completions.create(
@@ -92,6 +125,38 @@ def analyze_resume_text(text: str):
         "github",
         "docker",
         "aws",
+        "autocad",
+        "solidworks",
+        "catia",
+        "revit",
+        "sap",
+        "tally",
+        "quickbooks",
+        "digital marketing",
+        "seo",
+        "sem",
+        "content writing",
+        "copywriting",
+        "canva",
+        "figma",
+        "photoshop",
+        "illustrator",
+        "teaching",
+        "classroom management",
+        "patient care",
+        "clinical research",
+        "pharmacology",
+        "nursing",
+        "accounting",
+        "financial analysis",
+        "excel advanced",
+        "communication",
+        "leadership",
+        "problem solving",
+        "teamwork",
+        "project management",
+        "agile",
+        "scrum"
     ]
 
     detected_skills = []
@@ -101,13 +166,20 @@ def analyze_resume_text(text: str):
             detected_skills.append(skill)
 
     important_sections = [
-        "summary",
-        "experience",
-        "education",
-        "skills",
-        "projects",
-    ]
-
+    "summary",
+    "objective",
+    "experience",
+    "internship",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+    "achievements",
+    "languages",
+    "publications",
+    "research",
+    "volunteer"
+]
     detected_sections = []
 
     for section in important_sections:

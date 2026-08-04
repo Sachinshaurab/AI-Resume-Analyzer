@@ -1,6 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { CircularProgressbar, buildStyles } from
+"react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import jsPDF from "jspdf"; 
 
 type Analysis = {
   ats_score: number;
@@ -124,6 +128,32 @@ const [jobMatch, setJobMatch] = useState<{
   } finally {
     setLoading(false);
   }
+};
+const downloadPDF = () => {
+  if (!analysis) return;
+
+  const doc = new jsPDF();
+
+  doc.setFontSize(20);
+  doc.text("Resume Analysis Report", 20, 20);
+
+  doc.setFontSize(14);
+  doc.text(`ATS Score: ${analysis.ats_score}/100`, 20, 40);
+  doc.text(`Word Count: ${analysis.word_count}`, 20, 50);
+
+  doc.text("Skills:", 20, 70);
+  analysis.skills.forEach((skill, index) => {
+    doc.text(`• ${skill}`, 25, 80 + index * 8);
+  });
+
+  const y = 90 + analysis.skills.length * 8;
+
+  doc.text("Suggestions:", 20, y);
+  analysis.suggestions.forEach((item, index) => {
+    doc.text(`• ${item}`, 25, y + 10 + index * 8);
+  });
+
+  doc.save("Resume_Analysis_Report.pdf");
 };
 
   return (
@@ -273,7 +303,7 @@ const [jobMatch, setJobMatch] = useState<{
 
     <div className="bg-gray-900 border border-blue-500 rounded-xl p-6 shadow-lg">
       <h4 className="text-xl font-bold text-cyan-400 mb-4">
-        Gemini AI Analysis
+        Groq AI Analysis
       </h4>
 
       <div className="text-gray-300 whitespace-pre-wrap leading-relaxed">
@@ -287,7 +317,12 @@ const [jobMatch, setJobMatch] = useState<{
             <h3 className="text-3xl font-bold text-center mb-8">
               Resume Analysis
             </h3>
-
+            <button
+  onClick={downloadPDF}
+  className="mb-6 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold"
+>
+  Download PDF
+</button>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
                 <h4 className="text-xl font-bold text-blue-500">
@@ -300,17 +335,22 @@ const [jobMatch, setJobMatch] = useState<{
                     /100
                   </span>
                 </p>
-
-                <div className="w-full bg-gray-800 rounded-full h-4 mt-6 overflow-hidden">
-                  <div
-                    className="bg-blue-600 h-4 rounded-full"
-                    style={{
-                      width: `${analysis.ats_score}%`,
-                    }}
-                  />
-                </div>
+                <div className="w-40 h-40 mx-auto mt-6">
+                  <CircularProgressbar
+                  value={analysis.ats_score}
+                  text={`${analysis.ats_score}%`}
+                  styles={buildStyles({
+                    textColor:"#ffffff",
+                    pathColor:"#3b82f6",
+                    trailColor:"#374151",
+                    textSize:"16px",
+                  })}
+                />
               </div>
-
+              <p className="text-center text-gray-400 mt-4">
+              ATS Resume Score
+              </p>
+              </div>
               <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
                 <h4 className="text-xl font-bold text-blue-500">
                   Resume Stats
